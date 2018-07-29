@@ -7,9 +7,9 @@
   "scripts": {
     "build": "tsc",
     "deploy": "npm run build && gcloud app deploy --project headless-chrome-209713",
-    "start": "node dist/app.js",
-    "dev-start": "NODE_LOCALHOST=true node dist/app.js",
-    "staging-start": "NODE_STAGING=true node dist/app.js"
+    "start": "NODE_TARGET=staging node dist/app.js",
+    "start-localhost": "NODE_TARGET=localhost node dist/app.js",
+    "start-staging": "NODE_TARGET=staging node dist/app.js"
   },
   "dependencies": {
     "@types/express": "^4.16.0",
