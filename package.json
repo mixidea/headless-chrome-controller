@@ -6,7 +6,7 @@
   "version": "1.0.0",
   "scripts": {
     "build": "tsc",
-    "deploy": "npm run build && gcloud app deploy --project headless-chrome-209713",
+    "deploy-staging": "npm run build && gcloud app deploy --project mixidea-test-a2f1f",
     "start": "NODE_TARGET=staging node dist/app.js",
     "start-localhost": "NODE_TARGET=localhost node dist/app.js",
     "start-staging": "NODE_TARGET=staging node dist/app.js"
