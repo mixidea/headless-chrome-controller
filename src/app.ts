@@ -81,13 +81,21 @@ const server = app.listen(port, (error: any) => {
     return console.error(error);
   }
   console.info(`App listening on port ${port}`);
-  console.log(`NODE_TARGET=${ process.env.NODE_TARGET }`);
+
   let baseurl = 'https://mixidea.org/headless-chrome/recording/';
+
+  console.log(`NODE_TARGET=${ process.env.NODE_TARGET }`);
   if (process.env.NODE_TARGET === 'staging') {
     baseurl = 'https://staging.mixidea.org/headless-chrome/recording/';
   } else if (process.env.NODE_TARGET === 'localhost') {
     baseurl = 'http://localhost:4200/recording/';
   }
+
+  console.log(`GOOGLE_CLOUD_PROJECT=${ process.env.GOOGLE_CLOUD_PROJECT }`);
+  if (process.env.GOOGLE_CLOUD_PROJECT === 'mixidea-test-a2f1f') {
+    baseurl = 'https://staging.mixidea.org/headless-chrome/recording/';
+  }
+
   app.locals.baseurl = baseurl;
   console.log(`baseurl=${ app.locals.baseurl }`);
 });
