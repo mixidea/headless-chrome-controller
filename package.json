@@ -8,13 +8,14 @@
     "build": "tsc",
     "deploy-staging": "npm run build && gcloud app deploy --project mixidea-test-a2f1f",
     "start": "NODE_TARGET=staging node dist/app.js",
-    "start-localhost": "NODE_TARGET=localhost node dist/app.js",
-    "start-staging": "NODE_TARGET=staging node dist/app.js"
+    "start-localhost": "npm run build && NODE_TARGET=localhost node dist/app.js",
+    "start-staging": "npm run build && NODE_TARGET=staging node dist/app.js"
   },
   "dependencies": {
     "@types/express": "^4.16.0",
     "@types/puppeteer": "^1.5.0",
     "express": "^4.16.3",
-    "puppeteer": "^1.5.0"
+    "puppeteer": "^1.5.0",
+    "typescript": "^2.9.2"
   }
 }

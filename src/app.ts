@@ -13,14 +13,14 @@ app.get('/recording/:event_id', async (req, res) => {
         l.error('Missed parameter: event_id');
         await res.end();
         return;
-      }    
+      }
       const url = app.locals.baseurl + event_id;
 
       await l.log('Launch Chrome', false);
       browser = await puppeteer.launch({
         args: ['--no-sandbox']
       });
-    
+
       const page = await browser.newPage();
       await page.setViewport({ width: 400, height: 300 });
       l.page = page;
