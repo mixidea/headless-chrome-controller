@@ -32,6 +32,7 @@ app.get('/recording/:event_id', async (req, res) => {
       await page.waitFor(1000);
       await l.log('Open Page', true);
 
+      let speech_id = 0;
       while (true) {
         if (60 * 60 * 1000 < Date.now() - launchTime) {
           await l.log('TimeOut', true);
@@ -51,10 +52,13 @@ app.get('/recording/:event_id', async (req, res) => {
           continue;
         }
 
-        const start_record = await page.$('#start_record');
-        if (start_record) {
-          await start_record.click();
-          await l.log('Start Record', true);
+        const speech_start_time = await page.$('#main_speaker\\.speech_start_time');
+        if (speech_start_time) {
+          const speech_start_time_value  = await page.evaluate(speech_start_time => speech_start_time.textContent, speech_start_time);
+          if (speech_start_time_value && speech_start_time_value !== speech_id) {
+            await l.log('Start Record', true);
+            speech_id = speech_start_time_value;
+          }
         }
 
         await page.waitFor(1000);
