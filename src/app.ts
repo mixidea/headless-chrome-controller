@@ -13,14 +13,14 @@ app.get('/recording/:event_id', async (req, res) => {
         l.error('Missed parameter: event_id');
         await res.end();
         return;
-      }    
+      }
       const url = app.locals.baseurl + event_id;
 
       await l.log('Launch Chrome', false);
       browser = await puppeteer.launch({
         args: ['--no-sandbox']
       });
-    
+
       const page = await browser.newPage();
       await page.setViewport({ width: 400, height: 300 });
       l.page = page;
@@ -32,6 +32,7 @@ app.get('/recording/:event_id', async (req, res) => {
       await page.waitFor(1000);
       await l.log('Open Page', true);
 
+      let speech_id = 0;
       while (true) {
         if (60 * 60 * 1000 < Date.now() - launchTime) {
           await l.log('TimeOut', true);
@@ -51,10 +52,13 @@ app.get('/recording/:event_id', async (req, res) => {
           continue;
         }
 
-        const start_record = await page.$('#start_record');
-        if (start_record) {
-          await start_record.click();
-          await l.log('Start Record', true);
+        const speech_start_time = await page.$('#main_speaker\\.speech_start_time');
+        if (speech_start_time) {
+          const speech_start_time_value  = await page.evaluate(speech_start_time => speech_start_time.textContent, speech_start_time);
+          if (speech_start_time_value && speech_start_time_value !== speech_id) {
+            await l.log('Start Record', true);
+            speech_id = speech_start_time_value;
+          }
         }
 
         await page.waitFor(1000);
@@ -81,13 +85,21 @@ const server = app.listen(port, (error: any) => {
     return console.error(error);
   }
   console.info(`App listening on port ${port}`);
-  console.log(`NODE_TARGET=${ process.env.NODE_TARGET }`);
+
   let baseurl = 'https://mixidea.org/headless-chrome/recording/';
+
+  console.log(`NODE_TARGET=${ process.env.NODE_TARGET }`);
   if (process.env.NODE_TARGET === 'staging') {
     baseurl = 'https://staging.mixidea.org/headless-chrome/recording/';
   } else if (process.env.NODE_TARGET === 'localhost') {
     baseurl = 'http://localhost:4200/recording/';
   }
+
+  console.log(`GOOGLE_CLOUD_PROJECT=${ process.env.GOOGLE_CLOUD_PROJECT }`);
+  if (process.env.GOOGLE_CLOUD_PROJECT === 'mixidea-test-a2f1f') {
+    baseurl = 'https://staging.mixidea.org/headless-chrome/recording/';
+  }
+
   app.locals.baseurl = baseurl;
   console.log(`baseurl=${ app.locals.baseurl }`);
 });
@@ -107,7 +119,7 @@ class Logger {
     await this.res.write(`<p><span>${(Date.now() - this.startTime) / 1000}:</span> <span style="${style}">${message}</span></p>`);
     if (capture && this.page && ! this.page.isClosed() ) {
       const img = await this.page.screenshot({encoding: 'base64', fullPage: true});
-      await this.res.write(`<img src="data:image/png;base64,${img}">`);
+      await this.res.write(`<img src="data:image/png;base64,${img}" style="border-width:1px; border-style:dashed;">`);
     }
   }
   async error(message: any) {
