@@ -6,7 +6,8 @@
   "version": "1.0.0",
   "scripts": {
     "build": "tsc",
-    "deploy-staging": "npm run build && gcloud app deploy --project mixidea-test-a2f1f",
+    "deploy-dev": "npm run build && gcloud app deploy --project mixidea-test-a2f1f",
+    "deploy": "npm run build && gcloud app deploy --project mixidea-91a20",
     "start": "node dist/app.js",
     "start-localhost": "npm run build && NODE_TARGET=localhost node dist/app.js",
     "start-staging": "npm run build && NODE_TARGET=staging node dist/app.js"

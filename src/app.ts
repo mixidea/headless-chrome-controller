@@ -86,18 +86,18 @@ const server = app.listen(port, (error: any) => {
   }
   console.info(`App listening on port ${port}`);
 
-  let baseurl = 'https://mixidea.org/headless-chrome/recording/';
+  let baseurl = 'https://mixidea-headlesschrome.storage.googleapis.com/index.html?event_id=';
 
   console.log(`NODE_TARGET=${ process.env.NODE_TARGET }`);
-  if (process.env.NODE_TARGET === 'staging') {
-    baseurl = 'https://staging.mixidea.org/headless-chrome/recording/';
-  } else if (process.env.NODE_TARGET === 'localhost') {
-    baseurl = 'http://localhost:4200/recording/';
+
+  if (process.env.NODE_TARGET === 'localhost') {
+    baseurl = 'http://localhost:4200/index.html?event_id=';
   }
 
   console.log(`GOOGLE_CLOUD_PROJECT=${ process.env.GOOGLE_CLOUD_PROJECT }`);
-  if (process.env.GOOGLE_CLOUD_PROJECT === 'mixidea-test-a2f1f') {
-    baseurl = 'https://staging.mixidea.org/headless-chrome/recording/';
+
+  if (process.env.NODE_TARGET === 'staging' || process.env.GOOGLE_CLOUD_PROJECT === 'mixidea-test-a2f1f') {
+    baseurl = 'https://mixidea-headlesschrome-test.storage.googleapis.com/index.html?event_id=';
   }
 
   app.locals.baseurl = baseurl;
