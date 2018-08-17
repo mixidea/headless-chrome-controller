@@ -1,0 +1,18 @@
+Headless Chrome Controller
+ローカル環境
+ コマンド
+  npm run start-localhost
+ URL (例)
+  http://localhost:8080/recording/yCBTPj86AAYpGgPGpIlp
+
+ステージング
+ コマンド
+  npm run deploy-dev
+ URL (例)
+  https://mixidea-test-a2f1f.appspot.com/recording/yCBTPj86AAYpGgPGpIlp
+
+本番
+ コマンド
+  gulp run deploy
+ URL (例)
+  https://mixidea-91a20.appspot.com/recording/yCBTPj86AAYpGgPGpIlp
