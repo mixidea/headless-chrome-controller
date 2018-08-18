@@ -52,8 +52,8 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
       const game_status = await page.$('#live_video_basic\\.game_status');
       const game_status_value = await page.evaluate(game_status => game_status.textContent, game_status);
       if (game_status_value === 'reflection' || game_status_value === 'preparation' || game_status_value === 'intro') {
-        // TODO 間違えて reflection に行ってしまってから戻った場合の検討
-        await l.log('Reflection', true);
+
+        await l.log(game_status_value, true);
         break;
       } else if (game_status_value !== 'debate') {
         // preparation の場合など
@@ -99,7 +99,6 @@ const server = app.listen(port, (error: any) => {
 
 function get_baseurl(){
 
-  console.info(`App listening on port ${port}`);
   console.log(`NODE_TARGET=${ process.env.NODE_TARGET }`);
   console.log(`GOOGLE_CLOUD_PROJECT=${ process.env.GOOGLE_CLOUD_PROJECT }`);
 
