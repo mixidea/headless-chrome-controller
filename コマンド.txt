@@ -13,6 +13,6 @@ Headless Chrome Controller
 
 本番
  コマンド
-  gulp run deploy
+  npm run deploy
  URL (例)
   https://mixidea-91a20.appspot.com/recording/yCBTPj86AAYpGgPGpIlp

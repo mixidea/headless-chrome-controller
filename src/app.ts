@@ -29,6 +29,10 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
     browser = await puppeteer.launch({
       args: ['--no-sandbox']
     });
+    browser.on('targetdestroyed', () => console.log('<<browser event>> targetdestroyed'));
+    browser.on('targetcreated', () => console.log('<<browser event>> targetcreated'));
+    browser.on('targetchanged', () => console.log('<<browser event>> targetchanged'));
+    browser.on('disconnected', () => console.log('<<browser event>> disconnected'));
 
     const page = await browser.newPage();
     await page.setViewport({ width: 400, height: 300 });
@@ -36,16 +40,23 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
     page.on('console', async(c) => {
       await l.log(`${c.type()}: ${c.text()}: ${c.args()}`);
     });
+    page.on('load', () => console.log('<<page event>> loaded'));
+    page.on('close', () => console.log('<<page event>> closed'));
+    page.on('error', () => console.log('<<page event>> error'));
 
     await page.goto(url);
-    await page.waitFor(1000);
-    await l.log('Open Page', true);
+    // await page.waitFor(1000);
+    await l.log('!!!!!!!Open Page!!!!!!!', true);
 
-    let speech_id = 0;
     while (true) {
       if ( MAX_HEADLESSCHROME_LIFESPAN < Date.now() - launchTime) {
-        await l.log('TimeOut', true);
+        await l.log('!!!!!!!TimeOut!!!!!!!', true);
         break;
+      }
+
+      const aliveButtonElement = await page.$('#alive-check');
+      if(aliveButtonElement){
+        await aliveButtonElement.click();
       }
 
       await page.waitForSelector('#live_video_basic\\.game_status', { timeout: 60 * 1000 });
@@ -55,21 +66,14 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
 
         await l.log(game_status_value, true);
         break;
-      } else if (game_status_value !== 'debate') {
-        // preparation の場合など
+      } else if (game_status_value === 'debate') {
+
         await page.waitFor(1000);
+        // console.log('waitFor under debate', event_id);
         continue;
       }
 
-      const speech_start_time = await page.$('#main_speaker\\.speech_start_time');
-      if (speech_start_time) {
-        const speech_start_time_value  = await page.evaluate(speech_start_time => speech_start_time.textContent, speech_start_time);
-        if (speech_start_time_value && speech_start_time_value !== speech_id) {
-          await l.log('Start Record', true);
-          speech_id = speech_start_time_value;
-        }
-      }
-
+      console.log('waitFor last', event_id);
       await page.waitFor(1000);
       continue;
     }
@@ -81,6 +85,7 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
     }
   } finally {
     if (browser) {
+      console.log('>>operation<< browser close')
       await browser.close();
     }
     await res.end();
