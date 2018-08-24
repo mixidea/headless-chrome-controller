@@ -25,14 +25,14 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
 
     const url = app.locals.baseurl + "?event_id=" + event_id;
 
-    await l.log(`Launch Chrome!!! ${url}`, true);
+    await l.log(`Launch Chrome!!! ${url} :  ${event_id}`, true);
     browser = await puppeteer.launch({
       args: ['--no-sandbox']
     });
-    browser.on('targetdestroyed', () => console.log('<<browser event>> targetdestroyed'));
-    browser.on('targetcreated', () => console.log('<<browser event>> targetcreated'));
-    browser.on('targetchanged', () => console.log('<<browser event>> targetchanged'));
-    browser.on('disconnected', () => console.log('<<browser event>> disconnected'));
+    browser.on('targetdestroyed', () => console.log(`<<browser event>> targetdestroyed -  ${event_id}`));
+    browser.on('targetcreated', () => console.log(`<<browser event>> targetcreated -  ${event_id}`));
+    browser.on('targetchanged', () => console.log(`<<browser event>> targetchanged -  ${event_id}`));
+    browser.on('disconnected', () => console.log(`<<browser event>> disconnected -  ${event_id}`));
 
     const page = await browser.newPage();
     await page.setViewport({ width: 400, height: 300 });
@@ -40,17 +40,17 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
     page.on('console', async(c) => {
       await l.log(`${c.type()}: ${c.text()}: ${c.args()}`);
     });
-    page.on('load', () => console.log('<<page event>> loaded'));
-    page.on('close', () => console.log('<<page event>> closed'));
-    page.on('error', () => console.log('<<page event>> error'));
+    page.on('load', () => console.log(`<<page event>> loaded -  ${event_id}`));
+    page.on('close', () => console.log(`<<page event>> closed -  ${event_id}`));
+    page.on('error', () => console.log(`<<page event>> error -  ${event_id}`));
 
     await page.goto(url);
     // await page.waitFor(1000);
-    await l.log('!!!!!!!Open Page!!!!!!!', true);
+    await l.log(`!!!!!!!Open Page!!!!!!! -  ${event_id}`, true);
 
     while (true) {
       if ( MAX_HEADLESSCHROME_LIFESPAN < Date.now() - launchTime) {
-        await l.log('!!!!!!!TimeOut!!!!!!!', true);
+        await l.log(`!!!!!!!TimeOut!!!!!!! - ${MAX_HEADLESSCHROME_LIFESPAN} -  ${event_id}`, true);
         break;
       }
 
@@ -77,7 +77,7 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
       await page.waitFor(1000);
       continue;
     }
-    await l.log('Close Chrome', true);
+    await l.log(`Close Chrome  ${event_id}`, true);
   } catch(e) {
     l.error(e);
     if (e.stack) {
@@ -85,7 +85,7 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
     }
   } finally {
     if (browser) {
-      console.log('>>operation<< browser close')
+      console.log(`>>operation<< browser close -  ${event_id}`)
       await browser.close();
     }
     await res.end();
