@@ -64,7 +64,8 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
       const game_status_value = await page.evaluate(game_status => game_status.textContent, game_status);
       if (game_status_value === 'reflection' || game_status_value === 'preparation' || game_status_value === 'intro') {
 
-        await l.log(game_status_value, true);
+        await l.log(`status: ${game_status_value} and finish`, true);
+        await page.waitFor(30000);
         break;
       } else if (game_status_value === 'debate') {
 
