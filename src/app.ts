@@ -59,6 +59,14 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
         await aliveButtonElement.click();
       }
 
+      const end_check = await page.$('#end-check');
+      const end_check_value = await page.evaluate(end_check => end_check.textContent, end_check);
+      if(end_check_value === 'true'){
+        console.log('end_check_value is true and finish');
+        await page.waitFor(4000);
+        break;
+      }
+
       await page.waitForSelector('#live_video_basic\\.game_status', { timeout: 60 * 1000 });
       const game_status = await page.$('#live_video_basic\\.game_status');
       const game_status_value = await page.evaluate(game_status => game_status.textContent, game_status);
