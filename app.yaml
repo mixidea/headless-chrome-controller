@@ -4,5 +4,5 @@ instance_class: F4
 automatic_scaling:
   max_instances: 10
   max_concurrent_requests: 4
-  target_throughput_utilization: 0.55
+  target_throughput_utilization: 0.7
 # [END app_yaml]
