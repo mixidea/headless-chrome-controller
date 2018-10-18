@@ -1,7 +1,7 @@
 import express = require('express');
 import puppeteer = require('puppeteer');
 import { Logger } from './log';
-const MAX_HEADLESSCHROME_LIFESPAN = 60 * 60 * 1000
+const MAX_HEADLESSCHROME_LIFESPAN = 80 * 60 * 1000
 const app = express();
 
 app.get('/recording/:event_id', async (req, res) => {
@@ -25,7 +25,7 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
 
     const url = app.locals.baseurl + "?event_id=" + event_id;
 
-    await l.log(`Launch Chrome!!! ${url} :  ${event_id}`, true);
+    await l.log(`!!!Launch Chrome!!! ${url} :  ${event_id}`, true);
     browser = await puppeteer.launch({
       args: ['--no-sandbox']
     });
@@ -38,7 +38,8 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
     await page.setViewport({ width: 400, height: 300 });
     l.page = page;
     page.on('console', async(c) => {
-      await l.log(`${c.type()}: ${c.text()}: ${c.args()}`);
+      // await l.log(`${c.type()}: ${c.text()}: ${c.args()}`);
+      await l.log(`${c.type()}: ${c.text()}`);
     });
     page.on('load', () => console.log(`<<page event>> loaded -  ${event_id}`));
     page.on('close', () => console.log(`<<page event>> closed -  ${event_id}`));
