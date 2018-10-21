@@ -8,4 +8,5 @@ automatic_scaling:
 handlers:
   - url: /robots\.txt
     static_files: static/robots.txt
+    upload: static/robots.txt
 # [END app_yaml]
