@@ -27,7 +27,8 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
 
     await l.log(`!!!Launch Chrome!!! ${url} :  ${event_id}`, true);
     browser = await puppeteer.launch({
-      args: ['--no-sandbox']
+      args: ['--no-sandbox'],
+      dumpio: true
     });
     browser.on('targetdestroyed', () => console.log(`<<browser event>> targetdestroyed -  ${event_id}`));
     browser.on('targetcreated', () => console.log(`<<browser event>> targetcreated -  ${event_id}`));
