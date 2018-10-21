@@ -30,7 +30,8 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
       args: ['--no-sandbox'],
       // dumpio: true
     });
-    await l.log(`browser.version ${browser.version()}`);
+    const browser_version = await browser.version();
+    await l.log(`browser.version ${browser_version}`);
     browser.on('targetdestroyed', () => console.log(`<<browser event>> targetdestroyed -  ${event_id}`));
     browser.on('targetcreated', () => console.log(`<<browser event>> targetcreated -  ${event_id}`));
     browser.on('targetchanged', () => console.log(`<<browser event>> targetchanged -  ${event_id}`));
