@@ -3,7 +3,7 @@ runtime: nodejs8
 instance_class: B4_1G
 basic_scaling:
   max_instances: 10
-  idle_timeout: 80m
+  idle_timeout: 60m
 handlers:
   - url: /robots\.txt
     static_files: static/robots.txt
