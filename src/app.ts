@@ -1,23 +1,89 @@
 import express = require('express');
 import puppeteer = require('puppeteer');
-import { Logger } from './log';
+// import { Logger } from './log';
 const MAX_HEADLESSCHROME_LIFESPAN = 80 * 60 * 1000
 const app = express();
 
-app.get('/recording/:event_id', async (req, res) => {
-  const l = new Logger(res);
+let count_under_recording = 0;
+const concurrent_eventid_arr: string[] = [];
+const MAXIMUM_CONCURRENT_RECORDING = 8;
+
+
+
+
+
+app.get('/wakeup', async (req, res) => {
+  console.log('wakeup called to GAE_INSTANCE', process.env.GAE_INSTANCE)
+  await res.send(`woke up ${concurrent_eventid_arr}`);
+});
+
+app.get('/busycheck', async (req, res) => {
+  console.log('busycheck', process.env.GAE_APPLICATION);
+  await res.send( concurrent_eventid_arr );;
+});
+
+app.get('/test_countup', async (req, res) => {
+  count_under_recording++;
+  await res.send(`count ${String(count_under_recording)} `);
+});
+
+app.get('/remove_concurrent_eventid/:event_id', async (req, res) => {
   const event_id = req.params.event_id;
+  remove_concurrent_eventid(event_id);
+  await res.send(concurrent_eventid_arr);
+});
+
+app.get('/add_concurrent_eventid/:event_id', async (req, res) => {
+  const event_id = req.params.event_id;
+  add_concurrent_eventid(event_id);
+  await res.send(concurrent_eventid_arr);
+});
+
+app.get('/get_concuurent_event_suffficient', async (req, res) => {
+  await res.send(String(is_concuurent_event_suffficient()));
+});
+
+
+app.get('/recording/:event_id', async (req, res) => {
+  // const l = new Logger(res);
+  count_under_recording = count_under_recording + 1;
+  const event_id = req.params.event_id;
+  console.log('=============triggered by html request', event_id);
+  console.log('number of concurrent recording', count_under_recording);
+  if( !is_concuurent_event_suffficient()){
+    console.log('!!!!!!!!!!!!!!11too much concurrent recording in this instance!!!!!!!!!!', event_id);
+    await res.end();
+    return;   
+  }
+
+
   if (!event_id) {
-    l.error('Missed parameter: event_id');
+    console.error('Missed parameter: event_id');
     await res.end();
     return;
+  }else{
+    add_concurrent_eventid(event_id);
   }
-  await launch_monitor_headlesschrome(req, res, l, event_id);
+
+  try{
+    console.log('http response finish and continue headless chrome', event_id);
+    await res.end();
+    await launch_monitor_headlesschrome( event_id);
+    console.log(`finish launch monitor headlesschrome -  ${event_id}`);
+
+  }catch(err) {
+    console.error('error catch launch_monitor_headlesschrome', err);
+    await res.end();
+  }finally{
+    count_under_recording = count_under_recording - 1;
+    console.log('=============all process finished', event_id);
+    remove_concurrent_eventid(event_id);
+  }
 
 });
 
-async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , event_id: string){
-
+async function launch_monitor_headlesschrome(event_id: string){
+  console.log('launch_monitor_headlesschrome called', event_id);
   const launchTime = Date.now();
   let browser: puppeteer.Browser | null = null;
 
@@ -25,13 +91,13 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
 
     const url = app.locals.baseurl + "?event_id=" + event_id;
 
-    await l.log(`!!!Launch Chrome!!! ${url} :  ${event_id}`, true);
+    console.log(`!!!Launch Chrome!!! ${url} :  ${event_id}`, true);
     browser = await puppeteer.launch({
       args: ['--no-sandbox'],
       // dumpio: true
     });
     const browser_version = await browser.version();
-    await l.log(`browser.version ${browser_version}`);
+    console.log(`browser.version ${browser_version}`);
     browser.on('targetdestroyed', () => console.log(`<<browser event>> targetdestroyed -  ${event_id}`));
     browser.on('targetcreated', () => console.log(`<<browser event>> targetcreated -  ${event_id}`));
     browser.on('targetchanged', () => console.log(`<<browser event>> targetchanged -  ${event_id}`));
@@ -39,10 +105,10 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
 
     const page = await browser.newPage();
     await page.setViewport({ width: 400, height: 300 });
-    l.page = page;
+    // l.page = page;
     page.on('console', async(c) => {
       // await l.log(`${c.type()}: ${c.text()}: ${c.args()}`);
-      await l.log(`${c.type()}: ${c.text()}`);
+      console.log(`${c.type()}: ${c.text()}-  ${event_id}`);
     });
     page.on('load', () => console.log(`<<page event>> loaded -  ${event_id}`));
     page.on('close', () => console.log(`<<page event>> closed -  ${event_id}`));
@@ -50,11 +116,11 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
 
     await page.goto(url);
     // await page.waitFor(1000);
-    await l.log(`!!!!!!!Open Page!!!!!!! -  ${event_id}`, true);
+    console.log(`!!!!!!!Open Page!!!!!!! -  ${event_id}`, true);
 
     while (true) {
       if ( MAX_HEADLESSCHROME_LIFESPAN < Date.now() - launchTime) {
-        await l.log(`!!!!!!!TimeOut!!!!!!! - ${MAX_HEADLESSCHROME_LIFESPAN} -  ${event_id}`, true);
+        console.log(`!!!!!!!TimeOut!!!!!!! - ${MAX_HEADLESSCHROME_LIFESPAN} -  ${event_id}`, true);
         break;
       }
 
@@ -71,17 +137,17 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
         break;
       }
 
-      await page.waitForSelector('#live_video_basic\\.game_status', { timeout: 60 * 1000 });
+      await page.waitForSelector('#live_video_basic\\.game_status', { timeout: 120 * 1000 });
       const game_status = await page.$('#live_video_basic\\.game_status');
       const game_status_value = await page.evaluate(game_status => game_status.textContent, game_status);
       if (game_status_value === 'reflection' || game_status_value === 'preparation' || game_status_value === 'intro') {
 
-        await l.log(`status: ${game_status_value} and finish`, true);
+        console.log(`status: ${game_status_value} and finish`, true);
         await page.waitFor(30000);
         break;
       } else if (game_status_value === 'debate') {
-
         await page.waitFor(1000);
+        // this log is output too many times so it is disabled
         // console.log('waitFor under debate', event_id);
         continue;
       }
@@ -90,18 +156,17 @@ async function launch_monitor_headlesschrome( req: any, res: any, l: Logger , ev
       await page.waitFor(1000);
       continue;
     }
-    await l.log(`Close Chrome  ${event_id}`, true);
+    console.log(`Close Chrome  ${event_id}`, true);
   } catch(e) {
-    l.error(e);
+    console.error('launch_monitor_headlesschrome error', e);
     if (e.stack) {
-      l.error(e.stack);
+      console.error(e.stack);
     }
   } finally {
     if (browser) {
       console.log(`>>operation<< browser close -  ${event_id}`)
       await browser.close();
     }
-    await res.end();
   }
 
 }
@@ -131,5 +196,23 @@ function get_baseurl(){
   return 'https://mixidea-headlesschrome.storage.googleapis.com/index.html';
 }
 
+function remove_concurrent_eventid(event_id: string) {
+  const index = concurrent_eventid_arr.indexOf(event_id)
+  if(index !== -1){
+    concurrent_eventid_arr.splice(index, 1);
+  }
+}
+
+function add_concurrent_eventid(event_id: string) {
+  concurrent_eventid_arr.push(event_id);
+}
 
 
+function is_concuurent_event_suffficient() {
+  console.log('concurrent_eventid_arr', concurrent_eventid_arr);
+  const number_of_event = concurrent_eventid_arr.length + 1
+  if(number_of_event < MAXIMUM_CONCURRENT_RECORDING){
+    return true;
+  }
+  return false;
+}

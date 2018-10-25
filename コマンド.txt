@@ -11,8 +11,19 @@ Headless Chrome Controller
  URL (例)
   https://mixidea-test-a2f1f.appspot.com/recording/yCBTPj86AAYpGgPGpIlp
 
+https://mixidea-test-a2f1f.appspot.com/wakeup
+https://mixidea-test-a2f1f.appspot.com/busycheck
+
+https://mixidea-test-a2f1f.appspot.com/test_countup
+
+https://us-central1-mixidea-test-a2f1f.cloudfunctions.net/wakeupHeadlessChrome
+
 本番
  コマンド
   npm run deploy
  URL (例)
   https://mixidea-91a20.appspot.com/recording/yCBTPj86AAYpGgPGpIlp
+
+
+
+
