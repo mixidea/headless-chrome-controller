@@ -4,14 +4,65 @@ import puppeteer = require('puppeteer');
 const MAX_HEADLESSCHROME_LIFESPAN = 80 * 60 * 1000
 const app = express();
 
+let count_under_recording = 0;
+const concurrent_eventid_arr: string[] = [];
+const MAXIMUM_CONCURRENT_RECORDING = 8;
+
+
+
+
+
+app.get('/wakeup', async (req, res) => {
+  console.log('wakeup called to GAE_INSTANCE', process.env.GAE_INSTANCE)
+  await res.send(`woke up ${concurrent_eventid_arr}`);
+});
+
+app.get('/busycheck', async (req, res) => {
+  console.log('busycheck', process.env.GAE_APPLICATION);
+  await res.send( concurrent_eventid_arr );;
+});
+
+app.get('/test_countup', async (req, res) => {
+  count_under_recording++;
+  await res.send(`count ${String(count_under_recording)} `);
+});
+
+app.get('/remove_concurrent_eventid/:event_id', async (req, res) => {
+  const event_id = req.params.event_id;
+  remove_concurrent_eventid(event_id);
+  await res.send(concurrent_eventid_arr);
+});
+
+app.get('/add_concurrent_eventid/:event_id', async (req, res) => {
+  const event_id = req.params.event_id;
+  add_concurrent_eventid(event_id);
+  await res.send(concurrent_eventid_arr);
+});
+
+app.get('/get_concuurent_event_suffficient', async (req, res) => {
+  await res.send(String(is_concuurent_event_suffficient()));
+});
+
+
 app.get('/recording/:event_id', async (req, res) => {
   // const l = new Logger(res);
+  count_under_recording = count_under_recording + 1;
   const event_id = req.params.event_id;
   console.log('=============triggered by html request', event_id);
+  console.log('number of concurrent recording', count_under_recording);
+  if( !is_concuurent_event_suffficient()){
+    console.log('!!!!!!!!!!!!!!11too much concurrent recording in this instance!!!!!!!!!!', event_id);
+    await res.end();
+    return;   
+  }
+
+
   if (!event_id) {
     console.error('Missed parameter: event_id');
     await res.end();
     return;
+  }else{
+    add_concurrent_eventid(event_id);
   }
 
   try{
@@ -24,7 +75,9 @@ app.get('/recording/:event_id', async (req, res) => {
     console.error('error catch launch_monitor_headlesschrome', err);
     await res.end();
   }finally{
+    count_under_recording = count_under_recording - 1;
     console.log('=============all process finished', event_id);
+    remove_concurrent_eventid(event_id);
   }
 
 });
@@ -143,5 +196,23 @@ function get_baseurl(){
   return 'https://mixidea-headlesschrome.storage.googleapis.com/index.html';
 }
 
+function remove_concurrent_eventid(event_id: string) {
+  const index = concurrent_eventid_arr.indexOf(event_id)
+  if(index !== -1){
+    concurrent_eventid_arr.splice(index, 1);
+  }
+}
+
+function add_concurrent_eventid(event_id: string) {
+  concurrent_eventid_arr.push(event_id);
+}
 
 
+function is_concuurent_event_suffficient() {
+  console.log('concurrent_eventid_arr', concurrent_eventid_arr);
+  const number_of_event = concurrent_eventid_arr.length + 1
+  if(number_of_event < MAXIMUM_CONCURRENT_RECORDING){
+    return true;
+  }
+  return false;
+}
