@@ -24,6 +24,11 @@ https://us-central1-mixidea-test-a2f1f.cloudfunctions.net/wakeupHeadlessChrome
  URL (例)
   https://mixidea-91a20.appspot.com/recording/yCBTPj86AAYpGgPGpIlp
 
-
-
+Docker
+ ビルド
+  docker build -t headless-chrome-controller ./
+ 実行（ローカル）
+  docker run --rm -it -p 8080:8080 headless-chrome-controller npm run start-localhost
+ 実行（ステージング）
+  docker run --rm -it -p 8080:8080 headless-chrome-controller npm run start-staging
 
