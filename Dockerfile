@@ -30,3 +30,10 @@ COPY src/log.ts src/
 
 RUN npm install
 RUN npm run build
+
+CMD npm run start
+
+# ローカル実行（ローカルサーバ）
+# CMD npm run start-localhost
+# ローカル実行（ステージングサーバ）
+# CMD npm run start-staging

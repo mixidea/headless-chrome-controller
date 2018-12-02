@@ -27,8 +27,24 @@ https://us-central1-mixidea-test-a2f1f.cloudfunctions.net/wakeupHeadlessChrome
 Docker
  ビルド
   docker build -t headless-chrome-controller ./
- 実行（ローカル）
-  docker run --rm -it -p 8080:8080 headless-chrome-controller npm run start-localhost
- 実行（ステージング）
-  docker run --rm -it -p 8080:8080 headless-chrome-controller npm run start-staging
+  docker tag headless-chrome-controller gcr.io/chrome-recording-208807/headless-chrome-controller
+ ローカル実行
+  docker run --rm -it -p 8080:8080 headless-chrome-controller
 
+Docker コマンド 参考
+  docker tag headless-chrome-controller gcr.io/chrome-recording-208807/headless-chrome-controller
+  gcloud docker -- push gcr.io/chrome-recording-208807/headless-chrome-controller
+  gcloud container clusters get-credentials your-first-cluster-1 --zone us-central1-a
+  kubectl run headless-chrome-controller --image=gcr.io/chrome-recording-208807/headless-chrome-controller --port=8080
+
+  kubectl expose deployment headless-chrome-controller --type=LoadBalancer
+  kubectl describe service headless-chrome-controller
+
+  kubectl delete service headless-chrome-controller
+  kubectl delete deployment headless-chrome-controller
+
+  kubectl describe deployment headless-chrome-controller
+  kubectl describe pod headless-chrome-controller
+  kubectl get pod
+
+  kubectl logs headless-chrome-controller-7bb4cf6dbc-4kbpg
