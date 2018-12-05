@@ -44,23 +44,12 @@ Docker
     kubectl delete deployment headless-chrome-controller
 
  デプロイ（本番）
-  docker tag headless-chrome-controller gcr.io/mixidea-91a20/headless-chrome-controller
-  gcloud docker -- push gcr.io/mixidea-91a20/headless-chrome-controller
+  イメージ配置
+    docker tag headless-chrome-controller gcr.io/mixidea-91a20/headless-chrome-controller
+    gcloud docker -- push gcr.io/mixidea-91a20/headless-chrome-controller
 
-Docker コマンド 参考
-  docker tag headless-chrome-controller gcr.io/chrome-recording-208807/headless-chrome-controller
-  gcloud docker -- push gcr.io/chrome-recording-208807/headless-chrome-controller
-  gcloud container clusters get-credentials your-first-cluster-1 --zone us-central1-a
-  kubectl run headless-chrome-controller --image=gcr.io/chrome-recording-208807/headless-chrome-controller --port=8080
-
-  kubectl expose deployment headless-chrome-controller --type=LoadBalancer
-  kubectl describe service headless-chrome-controller
-
-  kubectl delete service headless-chrome-controller
-  kubectl delete deployment headless-chrome-controller
-
-  kubectl describe deployment headless-chrome-controller
-  kubectl describe pod headless-chrome-controller
-  kubectl get pod
-
-  kubectl logs headless-chrome-controller-7bb4cf6dbc-4kbpg
+  参考
+    kubectl describe deployment headless-chrome-controller
+    kubectl describe pod headless-chrome-controller
+    kubectl get pod
+    kubectl logs headless-chrome-controller-7bb4cf6dbc-4kbpg
