@@ -1,65 +1,29 @@
-import express = require('express');
 import puppeteer = require('puppeteer');
-// import { Logger } from './log';
+
 const MAX_HEADLESSCHROME_LIFESPAN = 80 * 60 * 1000
-const app = express();
 
 let count_under_recording = 0;
+let baseurl:string;
 const concurrent_eventid_arr: string[] = [];
 const MAXIMUM_CONCURRENT_RECORDING = 8;
 
-
-
-
-
-app.get('/wakeup', async (req, res) => {
-  console.log('wakeup called to GAE_INSTANCE', process.env.GAE_INSTANCE)
-  await res.send(`woke up ${concurrent_eventid_arr}`);
-});
-
-app.get('/busycheck', async (req, res) => {
-  console.log('busycheck', process.env.GAE_APPLICATION);
-  await res.send( concurrent_eventid_arr );;
-});
-
-app.get('/test_countup', async (req, res) => {
-  count_under_recording++;
-  await res.send(`count ${String(count_under_recording)} `);
-});
-
-app.get('/remove_concurrent_eventid/:event_id', async (req, res) => {
-  const event_id = req.params.event_id;
-  remove_concurrent_eventid(event_id);
-  await res.send(concurrent_eventid_arr);
-});
-
-app.get('/add_concurrent_eventid/:event_id', async (req, res) => {
-  const event_id = req.params.event_id;
-  add_concurrent_eventid(event_id);
-  await res.send(concurrent_eventid_arr);
-});
-
-app.get('/get_concuurent_event_suffficient', async (req, res) => {
-  await res.send(String(is_concuurent_event_suffficient()));
-});
-
-
-app.get('/recording/:event_id', async (req, res) => {
+const run = async(event_id? :string) => {
+  if (!event_id) {
+    console.log('No Event ID!');
+    return;
+  }
   // const l = new Logger(res);
   count_under_recording = count_under_recording + 1;
-  const event_id = req.params.event_id;
   console.log('=============triggered by html request', event_id);
   console.log('number of concurrent recording', count_under_recording);
   if( !is_concuurent_event_suffficient()){
     console.log('!!!!!!!!!!!!!!11too much concurrent recording in this instance!!!!!!!!!!', event_id);
-    await res.end();
     return;   
   }
 
 
   if (!event_id) {
     console.error('Missed parameter: event_id');
-    await res.end();
     return;
   }else{
     add_concurrent_eventid(event_id);
@@ -67,20 +31,18 @@ app.get('/recording/:event_id', async (req, res) => {
 
   try{
     console.log('http response finish and continue headless chrome', event_id);
-    await res.end();
     await launch_monitor_headlesschrome( event_id);
     console.log(`finish launch monitor headlesschrome -  ${event_id}`);
 
   }catch(err) {
     console.error('error catch launch_monitor_headlesschrome', err);
-    await res.end();
   }finally{
     count_under_recording = count_under_recording - 1;
     console.log('=============all process finished', event_id);
     remove_concurrent_eventid(event_id);
   }
 
-});
+}
 
 async function launch_monitor_headlesschrome(event_id: string){
   console.log('launch_monitor_headlesschrome called', event_id);
@@ -89,7 +51,7 @@ async function launch_monitor_headlesschrome(event_id: string){
 
   try {
 
-    const url = app.locals.baseurl + "?event_id=" + event_id;
+    const url = baseurl + "?event_id=" + event_id;
 
     console.log(`!!!Launch Chrome!!! ${url} :  ${event_id}`, true);
     browser = await puppeteer.launch({
@@ -171,14 +133,14 @@ async function launch_monitor_headlesschrome(event_id: string){
 
 }
 
-const port = (process.env.PORT || 8080) as number;
-const server = app.listen(port, (error: any) => {
-  if (error) {
-    return console.error(error);
-  }
-  app.locals.baseurl = get_baseurl();
-});
-
+if (process.argv[2]) {
+  const event_id  = process.argv[2];
+  console.log(`run: event_id: ${event_id}`);
+  baseurl = get_baseurl();
+  run(event_id);
+} else {
+  run();
+}
 
 function get_baseurl(){
 

@@ -25,15 +25,9 @@ WORKDIR /headless-chrome-controller
 COPY package.json .
 COPY package-lock.json .
 COPY tsconfig.json .
-COPY src/app.ts src/
-COPY src/log.ts src/
+COPY src/run.ts src/
 
 RUN npm install
 RUN npm run build
 
-CMD npm run start
-
-# ローカル実行（ローカルサーバ）
-# CMD npm run start-localhost
-# ローカル実行（ステージングサーバ）
-# CMD npm run start-staging
+CMD node dist/run.js
