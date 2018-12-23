@@ -17,7 +17,7 @@ const run = async(event_id?: string, app_url?: string) => {
   }
   // const l = new Logger(res);
   count_under_recording = count_under_recording + 1;
-  console.log('=============triggered by html request', event_id);
+  console.log(`=============run event_id: ${event_id}, app_url: ${app_url}`);
   console.log('number of concurrent recording', count_under_recording);
   if( !is_concuurent_event_suffficient()){
     console.log('!!!!!!!!!!!!!!11too much concurrent recording in this instance!!!!!!!!!!', event_id);
@@ -139,7 +139,7 @@ async function launch_monitor_headlesschrome(event_id: string, app_url: string){
 if (process.argv[2]) {
   const event_id  = process.argv[2];
   console.log(`run: event_id: ${event_id}`);
-  const app_url  = process.argv[2];
+  const app_url  = process.argv[3];
   run(event_id, app_url);
 } else {
   run();

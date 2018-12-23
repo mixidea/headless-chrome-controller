@@ -39,20 +39,14 @@ Docker
   手動実行
     （初回&認証切れ時）
     gcloud container clusters get-credentials chrome-small-cluster --zone us-central1-a
-    kubectl run headless-chrome-controller --image=gcr.io/mixidea-test-a2f1f/headless-chrome-controller --port=8080
-    kubectl expose deployment headless-chrome-controller --type=LoadBalancer
-    kubectl describe service headless-chrome-controller
+    kubectl run headless-chrome-controller-00002 --image=gcr.io/mixidea-test-a2f1f/headless-chrome-controller --restart=OnFailure -- npm run record-staging -- aUpWZjFSydRvCPuimOJB https://mixidea-headlesschrome-test.storage.googleapis.com/index.html
   手動停止・削除
-    kubectl delete service headless-chrome-controller
-    kubectl delete deployment headless-chrome-controller
+    kubectl get job
+    kubectl delete job headless-chrome-controller-00002
 
  デプロイ（本番）
   イメージ配置
+    （初回）
+    gcloud auth configure-docker
     docker tag headless-chrome-controller gcr.io/mixidea-91a20/headless-chrome-controller
-    gcloud docker -- push gcr.io/mixidea-91a20/headless-chrome-controller
-
-  参考
-    kubectl describe deployment headless-chrome-controller
-    kubectl describe pod headless-chrome-controller
-    kubectl get pod
-    kubectl logs headless-chrome-controller-7bb4cf6dbc-4kbpg
+    docker push gcr.io/mixidea-91a20/headless-chrome-controller
