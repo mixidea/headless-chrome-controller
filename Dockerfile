@@ -25,9 +25,9 @@ WORKDIR /headless-chrome-controller
 COPY package.json .
 COPY package-lock.json .
 COPY tsconfig.json .
-COPY src/run.ts src/
+COPY src/record.ts src/
 
 RUN npm install
 RUN npm run build
 
-CMD node dist/run.js
+CMD npm run record

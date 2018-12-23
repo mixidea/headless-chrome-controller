@@ -27,14 +27,17 @@ https://us-central1-mixidea-test-a2f1f.cloudfunctions.net/wakeupHeadlessChrome
 Docker
  ビルド
   docker build -t headless-chrome-controller ./
- ローカル実行
-  docker run --rm -it -p 8080:8080 headless-chrome-controller
+ ローカル実行（例）
+  docker run --rm -it headless-chrome-controller npm run record-staging -- aUpWZjFSydRvCPuimOJB
 
  デプロイ（ステージング）
   イメージ配置
+    （初回）
+    gcloud auth configure-docker
     docker tag headless-chrome-controller gcr.io/mixidea-test-a2f1f/headless-chrome-controller
-    gcloud docker -- push gcr.io/mixidea-test-a2f1f/headless-chrome-controller
-  手動デプロイ・起動
+    docker push gcr.io/mixidea-test-a2f1f/headless-chrome-controller
+  手動実行
+    （初回&認証切れ時）
     gcloud container clusters get-credentials chrome-small-cluster --zone us-central1-a
     kubectl run headless-chrome-controller --image=gcr.io/mixidea-test-a2f1f/headless-chrome-controller --port=8080
     kubectl expose deployment headless-chrome-controller --type=LoadBalancer
