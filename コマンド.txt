@@ -27,8 +27,8 @@ https://us-central1-mixidea-test-a2f1f.cloudfunctions.net/wakeupHeadlessChrome
 Docker
  ビルド
   docker build -t headless-chrome-controller ./
- ローカル実行（例）
-  docker run --rm -it headless-chrome-controller npm run record-staging -- aUpWZjFSydRvCPuimOJB
+ ローカル実行（ステージング例）
+  docker run --rm -it headless-chrome-controller npm run record-staging -- aUpWZjFSydRvCPuimOJB https://mixidea-headlesschrome-test.storage.googleapis.com/index.html
 
  デプロイ（ステージング）
   イメージ配置

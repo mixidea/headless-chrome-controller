@@ -3,13 +3,16 @@ import puppeteer = require('puppeteer');
 const MAX_HEADLESSCHROME_LIFESPAN = 80 * 60 * 1000
 
 let count_under_recording = 0;
-let baseurl:string;
 const concurrent_eventid_arr: string[] = [];
 const MAXIMUM_CONCURRENT_RECORDING = 8;
 
-const run = async(event_id? :string) => {
+const run = async(event_id?: string, app_url?: string) => {
   if (!event_id) {
     console.log('No Event ID!');
+    return;
+  }
+  if (!app_url) {
+    console.log('No App URL!');
     return;
   }
   // const l = new Logger(res);
@@ -31,7 +34,7 @@ const run = async(event_id? :string) => {
 
   try{
     console.log('http response finish and continue headless chrome', event_id);
-    await launch_monitor_headlesschrome( event_id);
+    await launch_monitor_headlesschrome( event_id, app_url);
     console.log(`finish launch monitor headlesschrome -  ${event_id}`);
 
   }catch(err) {
@@ -44,14 +47,14 @@ const run = async(event_id? :string) => {
 
 }
 
-async function launch_monitor_headlesschrome(event_id: string){
+async function launch_monitor_headlesschrome(event_id: string, app_url: string){
   console.log('launch_monitor_headlesschrome called', event_id);
   const launchTime = Date.now();
   let browser: puppeteer.Browser | null = null;
 
   try {
 
-    const url = baseurl + "?event_id=" + event_id;
+    const url = app_url + "?event_id=" + event_id;
 
     console.log(`!!!Launch Chrome!!! ${url} :  ${event_id}`, true);
     browser = await puppeteer.launch({
@@ -136,26 +139,10 @@ async function launch_monitor_headlesschrome(event_id: string){
 if (process.argv[2]) {
   const event_id  = process.argv[2];
   console.log(`run: event_id: ${event_id}`);
-  baseurl = get_baseurl();
-  run(event_id);
+  const app_url  = process.argv[2];
+  run(event_id, app_url);
 } else {
   run();
-}
-
-function get_baseurl(){
-
-  console.log(`NODE_TARGET=${ process.env.NODE_TARGET }`);
-  console.log(`GOOGLE_CLOUD_PROJECT=${ process.env.GOOGLE_CLOUD_PROJECT }`);
-
-  if (process.env.NODE_TARGET === 'localhost') {
-    return 'http://localhost:4200/index.html';
-  }else if (process.env.NODE_TARGET === 'staging' || process.env.GOOGLE_CLOUD_PROJECT === 'mixidea-test-a2f1f') {
-    return 'https://mixidea-headlesschrome-test.storage.googleapis.com/index.html';
-  }else if (process.env.NODE_TARGET === 'production' || process.env.GOOGLE_CLOUD_PROJECT === 'mixidea-91a20') {
-    return 'https://mixidea-headlesschrome.storage.googleapis.com/index.html';
-  }
-
-  return 'https://mixidea-headlesschrome.storage.googleapis.com/index.html';
 }
 
 function remove_concurrent_eventid(event_id: string) {
