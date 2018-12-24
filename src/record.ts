@@ -1,4 +1,5 @@
 import puppeteer = require('puppeteer');
+import * as https from 'https';
 
 const MAX_HEADLESSCHROME_LIFESPAN = 80 * 60 * 1000
 
@@ -6,7 +7,7 @@ let count_under_recording = 0;
 const concurrent_eventid_arr: string[] = [];
 const MAXIMUM_CONCURRENT_RECORDING = 8;
 
-const run = async(event_id?: string, app_url?: string) => {
+const run = async(event_id?: string, app_url?: string, delete_url?: string) => {
   if (!event_id) {
     console.log('No Event ID!');
     return;
@@ -34,7 +35,7 @@ const run = async(event_id?: string, app_url?: string) => {
 
   try{
     console.log('http response finish and continue headless chrome', event_id);
-    await launch_monitor_headlesschrome( event_id, app_url);
+    await launch_monitor_headlesschrome( event_id, app_url, delete_url);
     console.log(`finish launch monitor headlesschrome -  ${event_id}`);
 
   }catch(err) {
@@ -47,7 +48,7 @@ const run = async(event_id?: string, app_url?: string) => {
 
 }
 
-async function launch_monitor_headlesschrome(event_id: string, app_url: string){
+async function launch_monitor_headlesschrome(event_id: string, app_url: string, delete_url?: string){
   console.log('launch_monitor_headlesschrome called', event_id);
   const launchTime = Date.now();
   let browser: puppeteer.Browser | null = null;
@@ -131,16 +132,19 @@ async function launch_monitor_headlesschrome(event_id: string, app_url: string){
     if (browser) {
       console.log(`>>operation<< browser close -  ${event_id}`)
       await browser.close();
+      if (delete_url) {
+        https.get(new URL(delete_url));
+      }
     }
   }
-
 }
 
-if (process.argv[2]) {
+if (process.argv[2] && process.argv[3]) {
   const event_id  = process.argv[2];
   console.log(`run: event_id: ${event_id}`);
   const app_url  = process.argv[3];
-  run(event_id, app_url);
+  const delete_url = process.argv[4];
+  run(event_id, app_url, delete_url);
 } else {
   run();
 }
