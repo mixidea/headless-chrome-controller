@@ -80,7 +80,7 @@ async function launch_monitor_headlesschrome(event_id: string, app_url: string, 
     page.on('close', () => console.log(`<<page event>> closed -  ${event_id}`));
     page.on('error', () => console.log(`<<page event>> error -  ${event_id}`));
 
-    await page.goto(url, { timeout: 120000 });
+    await page.goto(url, { timeout: 180000 });
     // await page.waitFor(1000);
     console.log(`!!!!!!!Open Page!!!!!!! -  ${event_id}`, true);
 
