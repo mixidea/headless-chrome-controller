@@ -1,5 +1,5 @@
 # [START app_yaml]
-runtime: nodejs8
+runtime: nodejs10
 instance_class: B4_1G
 basic_scaling:
   max_instances: 10
