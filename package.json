@@ -1,7 +1,7 @@
 {
   "name": "headless-chrome-controller",
   "engines": {
-    "node": "8.x"
+    "node": "10.x"
   },
   "version": "1.0.0",
   "scripts": {

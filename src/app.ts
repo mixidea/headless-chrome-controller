@@ -44,11 +44,36 @@ app.get('/get_concuurent_event_suffficient', async (req, res) => {
 });
 
 
-app.get('/recording/:event_id', async (req, res) => {
+app.get('/recording/:router_id', async (req, res) => {
   // const l = new Logger(res);
   count_under_recording = count_under_recording + 1;
-  const event_id = req.params.event_id;
-  console.log('=============triggered by html request', event_id);
+  const router_id = req.params.router_id;
+  console.log(`router_id ${router_id}`)
+  const query = req.query || {};
+  console.log(`query ${JSON.stringify(query)}`)
+  const layout_type = query.layout_type;
+  const round = query.round;
+  const room_num_in_auditrium = query.room_num_in_auditrium;
+
+  let event_id = null;
+  let send_query = null;
+
+
+  if (!router_id) {
+    console.error('Missed parameter: router_id');
+    await res.end();
+    return;
+  }
+
+  if(layout_type === 'GAME_IN_AUDITRIUM'){
+    event_id = `${router_id}_${round}_${room_num_in_auditrium}`
+    send_query = `?router_id=${router_id}&layout_type=GAME_IN_AUDITRIUM&round=${round}&room_num_in_auditrium=${room_num_in_auditrium}`;
+  } else {
+    event_id = router_id
+    send_query = `?router_id=${router_id}`;
+  }
+
+  console.log(` =============triggered by html request event_id ${event_id} router_id ${router_id}`);
   console.log('number of concurrent recording', count_under_recording);
   if( !is_concuurent_event_suffficient()){
     console.log('!!!!!!!!!!!!!!11too much concurrent recording in this instance!!!!!!!!!!', event_id);
@@ -57,18 +82,12 @@ app.get('/recording/:event_id', async (req, res) => {
   }
 
 
-  if (!event_id) {
-    console.error('Missed parameter: event_id');
-    await res.end();
-    return;
-  }else{
     add_concurrent_eventid(event_id);
-  }
 
   try{
     console.log('http response finish and continue headless chrome', event_id);
     await res.end();
-    await launch_monitor_headlesschrome( event_id);
+    await launch_monitor_headlesschrome( send_query, event_id );
     console.log(`finish launch monitor headlesschrome -  ${event_id}`);
 
   }catch(err) {
@@ -82,14 +101,14 @@ app.get('/recording/:event_id', async (req, res) => {
 
 });
 
-async function launch_monitor_headlesschrome(event_id: string){
-  console.log('launch_monitor_headlesschrome called', event_id);
+async function launch_monitor_headlesschrome(send_query: string, event_id: string){
+  console.log('launch_monitor_headlesschrome called', send_query);
   const launchTime = Date.now();
   let browser: puppeteer.Browser | null = null;
 
   try {
 
-    const url = app.locals.baseurl + "?event_id=" + event_id;
+    const url = app.locals.baseurl + send_query;
 
     console.log(`!!!Launch Chrome!!! ${url} :  ${event_id}`, true);
     browser = await puppeteer.launch({

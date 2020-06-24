@@ -5,6 +5,8 @@ Headless Chrome Controller
  URL (例)
   http://localhost:8080/recording/yCBTPj86AAYpGgPGpIlp
 
+  http://localhost:8080/recording/lKNAYnUJEwROrJjUn1W0?layout_type=GAME_IN_AUDITRIUM&round=1&room_num_in_auditrium=1
+
 ステージング
  コマンド
   npm run deploy-dev
