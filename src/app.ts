@@ -52,7 +52,7 @@ app.get('/recording/:router_id', async (req, res) => {
   const query = req.query || {};
   console.log(`query ${JSON.stringify(query)}`)
   const layout_type = query.layout_type;
-  const round = query.round;
+  const layout_type_id = query.layout_type_id;
   const room_num_in_auditrium = query.room_num_in_auditrium;
 
   let event_id = null;
@@ -66,8 +66,8 @@ app.get('/recording/:router_id', async (req, res) => {
   }
 
   if(layout_type === 'GAME_IN_AUDITRIUM'){
-    event_id = `${router_id}_${round}_${room_num_in_auditrium}`
-    send_query = `?router_id=${router_id}&layout_type=GAME_IN_AUDITRIUM&round=${round}&room_num_in_auditrium=${room_num_in_auditrium}`;
+    event_id = `${router_id}_${layout_type_id}_${room_num_in_auditrium}`
+    send_query = `?router_id=${router_id}&layout_type=GAME_IN_AUDITRIUM&layout_type_id=${layout_type_id}&room_num_in_auditrium=${room_num_in_auditrium}`;
   } else {
     event_id = router_id
     send_query = `?router_id=${router_id}`;
