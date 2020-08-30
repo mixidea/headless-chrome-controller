@@ -118,7 +118,7 @@ async function launch_monitor_headlesschrome(send_query: string, event_id: strin
       await page.waitForSelector('#live_video_basic\\.game_status', { timeout: 120 * 1000 });
       const game_status = await page.$('#live_video_basic\\.game_status');
       const game_status_value = await page.evaluate(game_status => game_status.textContent, game_status);
-      if (game_status_value === 'reflection' || game_status_value === 'preparation' || game_status_value === 'intro') {
+      if (game_status_value === 'reflection' || game_status_value === 'intro') {
 
         console.log(`status: ${game_status_value} and finish`, true);
         await page.waitFor(30000);
