@@ -37,7 +37,13 @@ Docker
     （初回）
     gcloud auth configure-docker
     docker tag headless-chrome-controller gcr.io/mixidea-test-a2f1f/headless-chrome-controller
+    docker tag headless-chrome-controller gcr.io/mixidea-temp-staging/headless-chrome-controller
+    docker tag headless-chrome-controller gcr.io/valid-weaver-296705/headless-chrome-controller
+
     docker push gcr.io/mixidea-test-a2f1f/headless-chrome-controller
+    docker push gcr.io/mixidea-temp-staging/headless-chrome-controller
+    docker push gcr.io/mixidea-test-a2f1f/headless-chrome-controller
+
   手動実行
     （初回&認証切れ時）
     gcloud container clusters get-credentials chrome-small-cluster --zone us-central1-a

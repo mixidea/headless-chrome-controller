@@ -3,9 +3,6 @@ import * as https from 'https';
 
 const MAX_HEADLESSCHROME_LIFESPAN = 80 * 60 * 1000
 
-let count_under_recording = 0;
-const concurrent_eventid_arr: string[] = [];
-const MAXIMUM_CONCURRENT_RECORDING = 8;
 
 const run = async(router_id?: string, app_url?: string, layout_type?: string, layout_type_id?: string, room_num_in_auditrium?: string) => {
   if (!router_id) {
@@ -17,8 +14,7 @@ const run = async(router_id?: string, app_url?: string, layout_type?: string, la
     return;
   }
   // const l = new Logger(res);
-  count_under_recording = count_under_recording + 1;
-  console.log(`router_id:${router_id}, app_url:${app_url}, layout_type:${layout_type}, layout_type_id:${layout_type_id}, room_num_in_auditrium:${room_num_in_auditrium}`);
+  console.log(`--router_id:${router_id}, app_url:${app_url}, layout_type:${layout_type}, layout_type_id:${layout_type_id}, room_num_in_auditrium:${room_num_in_auditrium}`);
 
   let event_id = null;
   let send_query = null;
@@ -37,13 +33,8 @@ const run = async(router_id?: string, app_url?: string, layout_type?: string, la
   }
 
   console.log(` =============triggered by html request event_id ${event_id} router_id ${router_id}`);
-  console.log('number of concurrent recording', count_under_recording);
-  if( !is_concuurent_event_suffficient()){
-    console.log('!!!!!!!!!!!!!!11too much concurrent recording in this instance!!!!!!!!!!', event_id);
-    return;   
-  }
 
-  add_concurrent_eventid(event_id);
+
 
   try{
     console.log('http response finish and continue headless chrome', event_id);
@@ -53,9 +44,8 @@ const run = async(router_id?: string, app_url?: string, layout_type?: string, la
   }catch(err) {
     console.error('error catch launch_monitor_headlesschrome', err);
   }finally{
-    count_under_recording = count_under_recording - 1;
     console.log('=============all process finished', event_id);
-    remove_concurrent_eventid(event_id);
+
   }
 
 }
@@ -163,23 +153,5 @@ if (process.argv[2] && process.argv[3]) {
   run();
 }
 
-function remove_concurrent_eventid(event_id: string) {
-  const index = concurrent_eventid_arr.indexOf(event_id)
-  if(index !== -1){
-    concurrent_eventid_arr.splice(index, 1);
-  }
-}
-
-function add_concurrent_eventid(event_id: string) {
-  concurrent_eventid_arr.push(event_id);
-}
 
 
-function is_concuurent_event_suffficient() {
-  console.log('concurrent_eventid_arr', concurrent_eventid_arr);
-  const number_of_event = concurrent_eventid_arr.length + 1
-  if(number_of_event < MAXIMUM_CONCURRENT_RECORDING){
-    return true;
-  }
-  return false;
-}
