@@ -10,7 +10,10 @@
     "deploy": "npm run build && gcloud app deploy --project mixidea-91a20",
     "start": "node dist/app.js",
     "start-localhost": "npm run build && NODE_TARGET=localhost node dist/app.js",
-    "start-staging": "npm run build && NODE_TARGET=staging node dist/app.js"
+    "start-staging": "npm run build && NODE_TARGET=staging node dist/app.js",
+    "record": "node dist/record.js",
+    "record-localhost": "NODE_TARGET=localhost node dist/record.js",
+    "record-staging": "NODE_TARGET=staging node dist/record.js"
   },
   "dependencies": {
     "@types/express": "^4.16.0",
