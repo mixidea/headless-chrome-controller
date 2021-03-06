@@ -159,7 +159,7 @@ async function launch_monitor_headlesschrome(send_query: string, event_id: strin
       await page.waitForSelector('#live_video_basic\\.game_status', { timeout: 120 * 1000 });
       const game_status = await page.$('#live_video_basic\\.game_status');
       const game_status_value = await page.evaluate(game_status => game_status.textContent, game_status);
-      if (game_status_value === 'reflection' || game_status_value === 'preparation' || game_status_value === 'intro') {
+      if (game_status_value === 'reflection' || game_status_value === 'intro') {
 
         console.log(`status: ${game_status_value} and finish`, true);
         await page.waitFor(30000);
@@ -206,10 +206,12 @@ function get_baseurl(){
 
   if (process.env.NODE_TARGET === 'localhost') {
     return 'http://localhost:4200/index.html';
-  }else if (process.env.NODE_TARGET === 'staging' || process.env.GOOGLE_CLOUD_PROJECT === 'mixidea-test-a2f1f') {
+  }else if (process.env.NODE_TARGET === 'staging' || process.env.GOOGLE_CLOUD_PROJECT === 'mixidea-test-a2f1f'  || process.env.GOOGLE_CLOUD_PROJECT === 'mixidea-temp-staging') {
     return 'https://mixidea-headlesschrome-test.storage.googleapis.com/index.html';
-  }else if (process.env.NODE_TARGET === 'production' || process.env.GOOGLE_CLOUD_PROJECT === 'mixidea-91a20') {
+  }else if (process.env.NODE_TARGET === 'production' || process.env.GOOGLE_CLOUD_PROJECT === 'mixidea-91a20' || process.env.GOOGLE_CLOUD_PROJECT === 'valid-weaver-296705') {
     return 'https://mixidea-headlesschrome.storage.googleapis.com/index.html';
+  }else if (process.env.NODE_TARGET === 'europe' || process.env.GOOGLE_CLOUD_PROJECT === 'temp-europe') {
+    return 'https://mixidea-headlesschrome-europe.storage.googleapis.com/index.html';
   }
 
   return 'https://mixidea-headlesschrome.storage.googleapis.com/index.html';
