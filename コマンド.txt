@@ -42,7 +42,7 @@ Docker
 
     docker push gcr.io/mixidea-test-a2f1f/headless-chrome-controller
     docker push gcr.io/mixidea-temp-staging/headless-chrome-controller
-    docker push gcr.io/mixidea-test-a2f1f/headless-chrome-controller
+    docker push gcr.io/valid-weaver-296705/headless-chrome-controller
 
   手動実行
     （初回&認証切れ時）
