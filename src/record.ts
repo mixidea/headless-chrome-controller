@@ -113,7 +113,7 @@ async function launch_monitor_headlesschrome(send_query: string, event_id: strin
         console.log(`status: ${game_status_value} and finish`, true);
         await page.waitFor(30000);
         break;
-      } else if (game_status_value === 'debate') {
+      } else if (game_status_value === 'debate' || game_status_value === 'preparation') {
         await page.waitFor(1000);
         // this log is output too many times so it is disabled
         // console.log('waitFor under debate', event_id);
